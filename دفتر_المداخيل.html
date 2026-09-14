@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#059669">
+<title>دفتر المداخيل اليومية</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { cairo: ['Cairo','sans-serif'] },
+      colors: {
+        brand: {50:'#ecfdf5',100:'#d1fae5',500:'#10b981',600:'#059669',700:'#047857'}
+      }
+    }
+  }
+}
+</script>
+
+<style>
+body{font-family:'Cairo',sans-serif;background:#f8fafc}
+*{box-sizing:border-box}
+.table-wrap{overflow-x:auto}
+.toast{animation:slideIn .25s ease-out}
+@keyframes slideIn{from{transform:translateY(15px);opacity:0}to{transform:translateY(0);opacity:1}}
+@media print{
+  #loginScreen,#changePasswordModal,#backupModal,.no-print,header button,footer{display:none!important}
+  #appScreen{display:flex!important}
+  body{background:white!important}
+  main{max-width:none!important;padding:10px!important}
+  .print-card{box-shadow:none!important;border:1px solid #ddd!important}
+}
+</style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 min-h-screen antialiased">
+
+<!-- LOGIN -->
+<div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm">
+  <div class="bg-white rounded-3xl shadow-2xl p-6 sm:p-10 w-full max-w-md">
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-brand-50 text-brand-600 rounded-2xl mb-4">
+        <i class="fa-solid fa-wallet text-3xl"></i>
+      </div>
+      <h1 class="text-2xl font-bold">برنامج المداخيل اليومية</h1>
+      <p class="text-slate-500 text-sm mt-1">أدخل كلمة السر للمتابعة</p>
+    </div>
+
+    <form id="loginForm" class="space-y-5">
+      <div>
+        <label class="block text-sm font-semibold mb-2">كلمة السر</label>
+        <div class="relative">
+          <input type="password" id="passwordInput" required
+            class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
+          <button type="button" id="toggleLoginPassword"
+            class="absolute left-0 inset-y-0 px-3 text-slate-400">
+            <i id="eyeIcon" class="fa-solid fa-eye"></i>
+          </button>
+        </div>
+      </div>
+      <div id="loginError" class="hidden text-red-600 text-xs bg-red-50 p-3 rounded-lg border border-red-100">
+        كلمة السر غير صحيحة.
+      </div>
+      <button class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-lg">
+        دخول إلى النظام
+      </button>
+    </form>
+    <p class="mt-6 text-center text-xs text-slate-400">البيانات تحفظ محلياً على هذا الجهاز.</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appScreen" class="hidden min-h-screen flex-col">
+<header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center text-white">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <div>
+          <h2 class="font-bold text-lg leading-tight">دفتر المداخيل</h2>
+          <span class="text-xs text-slate-500">نظام إدارة التسجيلات اليومية</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-1">
+        <button id="backupBtn" title="نسخة احتياطية" class="p-2.5 text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl">
+          <i class="fa-solid fa-database"></i>
+        </button>
+        <button id="changePasswordBtn" title="تغيير كلمة السر" class="p-2.5 text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl">
+          <i class="fa-solid fa-key"></i>
+        </button>
+        <button id="logoutBtn" title="خروج" class="p-2.5 text-red-500 hover:bg-red-50 rounded-xl">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span class="hidden sm:inline mr-1">خروج</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+<!-- STATS -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+  <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+    <p class="text-xs font-semibold text-slate-400">مداخيل اليوم</p>
+    <h3 id="todayTotal" class="text-2xl font-extrabold mt-2">0.00 دج</h3>
+    <p id="todayDateStr" class="text-xs text-slate-500 mt-1"></p>
+  </div>
+  <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+    <p class="text-xs font-semibold text-slate-400">مداخيل الشهر</p>
+    <h3 id="monthTotal" class="text-2xl font-extrabold mt-2">0.00 دج</h3>
+    <p id="monthNameStr" class="text-xs text-slate-500 mt-1"></p>
+  </div>
+  <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+    <p class="text-xs font-semibold text-slate-400">الصافي الكلي</p>
+    <h3 id="netTotal" class="text-2xl font-extrabold text-brand-600 mt-2">0.00 دج</h3>
+    <p class="text-xs text-slate-500 mt-1">بعد طرح صرف المتبقي</p>
+  </div>
+  <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+    <p class="text-xs font-semibold text-slate-400">إجمالي العمليات</p>
+    <h3 id="totalRecordsCount" class="text-2xl font-extrabold mt-2">0</h3>
+    <p class="text-xs text-slate-500 mt-1">عملية تسجيل</p>
+  </div>
+</section>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+<!-- FORM -->
+<section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 h-fit print-card">
+  <h3 id="formTitle" class="text-lg font-bold mb-5 flex items-center gap-2">
+    <i class="fa-solid fa-plus-circle text-brand-600"></i>
+    تسجيل مدخول جديد
+  </h3>
+
+  <form id="incomeForm" class="space-y-4">
+    <input type="hidden" id="editingId">
+
+    <div>
+      <label class="block text-sm font-semibold mb-1">المبلغ الأساسي</label>
+      <input type="number" step="0.01" min="0" id="incomeAmount" required placeholder="0.00"
+        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold mb-1">مداخيل الحليب</label>
+      <input type="number" step="0.01" min="0" id="milkIncome" placeholder="0.00"
+        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold mb-1">صرف المتبقي</label>
+      <input type="number" step="0.01" min="0" id="remainingExpenses" placeholder="0.00"
+        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
+    </div>
+
+    <div class="p-3 rounded-xl bg-brand-50 border border-brand-100">
+      <div class="flex justify-between text-sm">
+        <span class="font-semibold">الصافي لهذه العملية</span>
+        <strong id="liveNet">0.00 دج</strong>
+      </div>
+      <p class="text-[11px] text-slate-500 mt-1">المبلغ الأساسي + الحليب − صرف المتبقي</p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="block text-sm font-semibold mb-1">وصفات الشفاء</label>
+        <input type="number" min="0" step="1" id="chifaCount" placeholder="0"
+          class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1">وصفات العسكرية</label>
+        <input type="number" min="0" step="1" id="militaireCount" placeholder="0"
+          class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold mb-1">التاريخ</label>
+      <input type="date" id="incomeDate" required
+        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold mb-1">الفئة / المصدر</label>
+      <select id="incomeCategory"
+        class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+        <option value="مبيعات">مبيعات</option>
+        <option value="خدمات">تقديم خدمات</option>
+        <option value="أرباح">أرباح ومستحقات</option>
+        <option value="تحويلات">تحويلات واردة</option>
+        <option value="أخرى">مصدر آخر</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold mb-1">ملاحظات / وصف</label>
+      <textarea id="incomeNotes" rows="2" placeholder="أضف تفاصيل إضافية..."
+        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none resize-none"></textarea>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <button type="submit" id="saveIncomeBtn"
+        class="py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl flex items-center justify-center gap-2">
+        <i class="fa-solid fa-check"></i> حفظ المدخول
+      </button>
+      <button type="button" id="cancelEditBtn"
+        class="hidden py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl">
+        إلغاء التعديل
+      </button>
+    </div>
+  </form>
+</section>
+
+<!-- TABLE -->
+<section class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 print-card">
+  <div class="flex flex-col sm:flex-row justify-between gap-4 mb-6">
+    <h3 class="text-lg font-bold flex items-center gap-2">
+      <i class="fa-solid fa-list-check text-brand-600"></i> سجل المداخيل
+    </h3>
+    <div class="flex flex-wrap gap-2 no-print">
+      <button id="exportJsonBtn" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-semibold">
+        <i class="fa-solid fa-download"></i> JSON
+      </button>
+      <button id="exportCsvBtn" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-semibold">
+        <i class="fa-solid fa-file-csv"></i> CSV
+      </button>
+      <button onclick="window.print()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-semibold">
+        <i class="fa-solid fa-print"></i> طباعة
+      </button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 no-print">
+    <input type="text" id="searchInput" placeholder="بحث في الملاحظات، الفئة، التاريخ..."
+      class="px-4 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-brand-500">
+    <input type="date" id="filterDate"
+      class="px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-brand-500">
+    <select id="filterCategory"
+      class="px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-brand-500">
+      <option value="">كل الفئات</option>
+      <option value="مبيعات">مبيعات</option>
+      <option value="خدمات">تقديم خدمات</option>
+      <option value="أرباح">أرباح ومستحقات</option>
+      <option value="تحويلات">تحويلات واردة</option>
+      <option value="أخرى">مصدر آخر</option>
+    </select>
+  </div>
+
+  <div class="flex justify-between items-center mb-3 no-print">
+    <span id="filteredInfo" class="text-xs text-slate-500"></span>
+    <button id="resetFiltersBtn" class="text-xs text-brand-700 font-semibold hover:underline">إعادة ضبط</button>
+  </div>
+
+  <div class="table-wrap rounded-xl border border-slate-100">
+    <table class="w-full text-right text-sm min-w-[1100px]">
+      <thead class="bg-slate-50 text-slate-600 font-semibold border-b">
+        <tr>
+          <th class="p-3">التاريخ</th>
+          <th class="p-3">الفئة</th>
+          <th class="p-3">المبلغ</th>
+          <th class="p-3">الحليب</th>
+          <th class="p-3">المصاريف</th>
+          <th class="p-3">الصافي</th>
+          <th class="p-3">شفاء</th>
+          <th class="p-3">عسكرية</th>
+          <th class="p-3">الملاحظات</th>
+          <th class="p-3 text-center">إجراء</th>
+        </tr>
+      </thead>
+      <tbody id="incomeTableBody" class="divide-y divide-slate-100"></tbody>
+    </table>
+  </div>
+
+  <div id="noDataMessage" class="hidden text-center py-12 text-slate-400">
+    <i class="fa-solid fa-inbox text-4xl mb-3 block"></i>
+    <p>لا توجد مدخلات مطابقة.</p>
+  </div>
+</section>
+</div>
+</main>
+
+<footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+  تطبيق إدارة المداخيل اليومية © جميع الحقوق محفوظة
+</footer>
+</div>
+
+<!-- PASSWORD MODAL -->
+<div id="changePasswordModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+    <div class="flex justify-between items-center border-b pb-3 mb-4">
+      <h3 class="font-bold text-lg">تغيير كلمة السر</h3>
+      <button id="closePasswordModal"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="passwordForm" class="space-y-4">
+      <input type="password" id="currentPassInput" required placeholder="كلمة السر الحالية"
+        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 outline-none">
+      <input type="password" id="newPassInput" required minlength="4" placeholder="كلمة السر الجديدة"
+        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 outline-none">
+      <div id="modalAlert" class="hidden text-xs p-3 rounded-lg"></div>
+      <div class="flex justify-end gap-2">
+        <button type="button" id="cancelPasswordModal" class="px-4 py-2 bg-slate-100 rounded-xl">إلغاء</button>
+        <button class="px-4 py-2 bg-brand-600 text-white rounded-xl font-semibold">حفظ</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- BACKUP MODAL -->
+<div id="backupModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+    <div class="flex justify-between items-center border-b pb-3 mb-4">
+      <h3 class="font-bold text-lg">النسخ الاحتياطي</h3>
+      <button id="closeBackupModal"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <p class="text-sm text-slate-600 mb-4">صدّر بياناتك للاحتفاظ بنسخة، أو استورد ملف JSON سابق.</p>
+    <div class="grid gap-3">
+      <button id="backupExportBtn" class="py-3 bg-brand-600 text-white rounded-xl font-bold">
+        <i class="fa-solid fa-download"></i> تصدير نسخة احتياطية
+      </button>
+      <label class="py-3 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-center cursor-pointer">
+        <i class="fa-solid fa-upload"></i> استيراد نسخة احتياطية
+        <input id="backupImportInput" type="file" accept=".json,application/json" class="hidden">
+      </label>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="fixed bottom-5 left-5 z-[100] space-y-2"></div>
+
+<script>
+'use strict';
+
+const DEFAULT_PASSWORD = '1234';
+let records = [];
+let editingId = null;
+
+const $ = id => document.getElementById(id);
+
+function localDateString(date = new Date()) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth()+1).padStart(2,'0');
+  const d = String(date.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+
+function money(n) {
+  return new Intl.NumberFormat('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(n)||0) + ' DZD';
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+  }[c]));
+}
+
+function getPassword() {
+  return localStorage.getItem('app_password') || DEFAULT_PASSWORD;
+}
+
+function showToast(message, type='success') {
+  const div = document.createElement('div');
+  div.className = `toast px-4 py-3 rounded-xl shadow-lg text-sm font-semibold ${
+    type === 'error' ? 'bg-red-600 text-white' :
+    type === 'warning' ? 'bg-amber-500 text-white' :
+    'bg-slate-800 text-white'
+  }`;
+  div.textContent = message;
+  $('toastContainer').appendChild(div);
+  setTimeout(() => div.remove(), 2500);
+}
+
+function showLogin() {
+  $('loginScreen').classList.remove('hidden');
+  $('appScreen').classList.add('hidden');
+  $('appScreen').classList.remove('flex');
+}
+
+function showApp() {
+  $('loginScreen').classList.add('hidden');
+  $('appScreen').classList.remove('hidden');
+  $('appScreen').classList.add('flex');
+  renderDashboard();
+}
+
+function loadRecords() {
+  try {
+    const raw = localStorage.getItem('income_records');
+    const parsed = raw ? JSON.parse(raw) : [];
+    records = Array.isArray(parsed) ? parsed : [];
+  } catch {
+    records = [];
+    showToast('تعذر قراءة البيانات القديمة.', 'error');
+  }
+}
+
+function saveRecords() {
+  localStorage.setItem('income_records', JSON.stringify(records));
+  renderDashboard();
+}
+
+function resetForm() {
+  editingId = null;
+  $('editingId').value = '';
+  $('incomeForm').reset();
+  $('incomeDate').value = localDateString();
+  $('formTitle').innerHTML = '<i class="fa-solid fa-plus-circle text-brand-600"></i> تسجيل مدخول جديد';
+  $('saveIncomeBtn').innerHTML = '<i class="fa-solid fa-check"></i> حفظ المدخول';
+  $('cancelEditBtn').classList.add('hidden');
+  updateLiveNet();
+}
+
+function editRecord(id) {
+  const r = records.find(x => x.id === id);
+  if (!r) return;
+
+  editingId = id;
+  $('editingId').value = id;
+  $('incomeAmount').value = r.amount ?? '';
+  $('milkIncome').value = r.milk ?? '';
+  $('remainingExpenses').value = r.remaining ?? '';
+  $('chifaCount').value = r.chifa ?? 0;
+  $('militaireCount').value = r.militaire ?? 0;
+  $('incomeDate').value = r.date || localDateString();
+  $('incomeCategory').value = r.category || 'مبيعات';
+  $('incomeNotes').value = r.notes || '';
+
+  $('formTitle').innerHTML = '<i class="fa-solid fa-pen text-brand-600"></i> تعديل المدخول';
+  $('saveIncomeBtn').innerHTML = '<i class="fa-solid fa-save"></i> حفظ التعديل';
+  $('cancelEditBtn').classList.remove('hidden');
+  updateLiveNet();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function deleteRecord(id) {
+  const r = records.find(x => x.id === id);
+  if (!r) return;
+  if (!confirm(`هل أنت متأكد من حذف مدخول ${money((+r.amount||0)+(+r.milk||0))} بتاريخ ${r.date}؟`)) return;
+  records = records.filter(x => x.id !== id);
+  saveRecords();
+  showToast('تم حذف السجل.');
+}
+
+function handleIncomeSubmit(e) {
+  e.preventDefault();
+
+  const amount = Math.max(0, parseFloat($('incomeAmount').value) || 0);
+  const milk = Math.max(0, parseFloat($('milkIncome').value) || 0);
+  const remaining = Math.max(0, parseFloat($('remainingExpenses').value) || 0);
+  const chifa = Math.max(0, parseInt($('chifaCount').value) || 0);
+  const militaire = Math.max(0, parseInt($('militaireCount').value) || 0);
+  const date = $('incomeDate').value;
+  const category = $('incomeCategory').value;
+  const notes = $('incomeNotes').value.trim();
+
+  if (!date) {
+    showToast('اختر التاريخ.', 'error');
+    return;
+  }
+
+  const data = {amount,milk,remaining,chifa,militaire,date,category,notes};
+
+  if (editingId) {
+    const index = records.findIndex(x => x.id === editingId);
+    if (index !== -1) {
+      records[index] = {...records[index], ...data};
+      saveRecords();
+      showToast('تم تعديل السجل بنجاح.');
+    }
+  } else {
+    records.unshift({
+      id: (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString()),
+      createdAt: new Date().toISOString(),
+      ...data
+    });
+    saveRecords();
+    showToast('تم حفظ المدخول بنجاح.');
+  }
+
+  resetForm();
+}
+
+function calculateTotals() {
+  const today = localDateString();
+  const month = today.slice(0,7);
+
+  let todayNet=0, monthNet=0, grandIncome=0, grandMilk=0, grandExpenses=0, grandNet=0;
+
+  for (const r of records) {
+    const amount = +r.amount || 0;
+    const milk = +r.milk || 0;
+    const expenses = +r.remaining || 0;
+    const income = amount + milk;
+    const net = income - expenses;
+
+    grandIncome += amount;
+    grandMilk += milk;
+    grandExpenses += expenses;
+    grandNet += net;
+
+    if (r.date === today) todayNet += net;
+    if ((r.date || '').startsWith(month)) monthNet += net;
+  }
+
+  $('todayTotal').textContent = money(todayNet);
+  $('monthTotal').textContent = money(monthNet);
+  $('netTotal').textContent = money(grandNet);
+  $('totalRecordsCount').textContent = records.length;
+
+  const d = new Date();
+  $('todayDateStr').textContent = d.toLocaleDateString('ar-DZ',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  $('monthNameStr').textContent = d.toLocaleDateString('ar-DZ',{month:'long',year:'numeric'});
+
+  return {grandIncome,grandMilk,grandExpenses,grandNet};
+}
+
+function filterRecords() {
+  const search = $('searchInput').value.trim().toLowerCase();
+  const date = $('filterDate').value;
+  const category = $('filterCategory').value;
+
+  const filtered = records.filter(r => {
+    const text = [
+      r.date, r.category, r.notes, r.amount, r.milk, r.remaining, r.chifa, r.militaire
+    ].join(' ').toLowerCase();
+
+    return (!search || text.includes(search)) &&
+           (!date || r.date === date) &&
+           (!category || r.category === category);
+  });
+
+  renderTable(filtered);
+}
+
+function renderTable(list) {
+  const tbody = $('incomeTableBody');
+  tbody.innerHTML = '';
+  $('filteredInfo').textContent = `${list.length} من ${records.length} سجل`;
+
+  if (!list.length) {
+    $('noDataMessage').classList.remove('hidden');
+    return;
+  }
+  $('noDataMessage').classList.add('hidden');
+
+  for (const r of list) {
+    const amount = +r.amount || 0;
+    const milk = +r.milk || 0;
+    const expenses = +r.remaining || 0;
+    const net = amount + milk - expenses;
+
+    const tr = document.createElement('tr');
+    tr.className = 'hover:bg-slate-50 transition-colors';
+
+    tr.innerHTML = `
+      <td class="p-3 whitespace-nowrap font-medium">${escapeHtml(r.date)}</td>
+      <td class="p-3 whitespace-nowrap"><span class="px-2 py-1 bg-slate-100 rounded-lg text-xs">${escapeHtml(r.category)}</span></td>
+      <td class="p-3 whitespace-nowrap font-bold text-brand-700">${money(amount)}</td>
+      <td class="p-3 whitespace-nowrap font-bold text-blue-600">${money(milk)}</td>
+      <td class="p-3 whitespace-nowrap font-bold text-amber-600">${money(expenses)}</td>
+      <td class="p-3 whitespace-nowrap font-bold ${net >= 0 ? 'text-emerald-700':'text-red-600'}">${money(net)}</td>
+      <td class="p-3 font-bold text-indigo-600">${r.chifa || 0}</td>
+      <td class="p-3 font-bold text-purple-600">${r.militaire || 0}</td>
+      <td class="p-3 text-slate-500 max-w-xs">${escapeHtml(r.notes || '-')}</td>
+      <td class="p-3 text-center whitespace-nowrap no-print">
+        <button data-action="edit" data-id="${escapeHtml(r.id)}" title="تعديل" class="text-blue-500 hover:bg-blue-50 p-2 rounded-lg">
+          <i class="fa-solid fa-pen"></i>
+        </button>
+        <button data-action="delete" data-id="${escapeHtml(r.id)}" title="حذف" class="text-red-500 hover:bg-red-50 p-2 rounded-lg">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  }
+}
+
+function renderDashboard() {
+  calculateTotals();
+  filterRecords();
+}
+
+function updateLiveNet() {
+  const amount = +$('incomeAmount').value || 0;
+  const milk = +$('milkIncome').value || 0;
+  const expenses = +$('remainingExpenses').value || 0;
+  $('liveNet').textContent = money(amount + milk - expenses);
+}
+
+function exportJSON() {
+  if (!records.length) return showToast('لا توجد بيانات لتصديرها.','warning');
+
+  const payload = {
+    app: 'دفتر المداخيل',
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    records
+  };
+
+  downloadFile(
+    JSON.stringify(payload,null,2),
+    `backup_income_${localDateString()}.json`,
+    'application/json;charset=utf-8'
+  );
+  showToast('تم تصدير النسخة الاحتياطية.');
+}
+
+function exportCSV() {
+  if (!records.length) return showToast('لا توجد بيانات لتصديرها.','warning');
+
+  const headers = ['التاريخ','الفئة','المبلغ الأساسي','الحليب','صرف المتبقي','الصافي','وصفات الشفاء','وصفات العسكرية','الملاحظات'];
+  const rows = records.map(r => [
+    r.date,r.category,r.amount||0,r.milk||0,r.remaining||0,
+    (+r.amount||0)+(+r.milk||0)-(+r.remaining||0),
+    r.chifa||0,r.militaire||0,r.notes||''
+  ]);
+
+  const csv = '\uFEFF' + [headers,...rows].map(row =>
+    row.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')
+  ).join('\n');
+
+  downloadFile(csv,`income_${localDateString()}.csv`,'text/csv;charset=utf-8');
+  showToast('تم تصدير CSV.');
+}
+
+function downloadFile(content,name,type) {
+  const blob = new Blob([content],{type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function importBackup(file) {
+  if (!file) return;
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(reader.result);
+      const imported = Array.isArray(parsed) ? parsed : parsed.records;
+
+      if (!Array.isArray(imported)) throw new Error();
+
+      const clean = imported.map(r => ({
+        id: String(r.id || (crypto.randomUUID ? crypto.randomUUID() : Date.now()+Math.random())),
+        amount: Math.max(0,+r.amount||0),
+        milk: Math.max(0,+r.milk||0),
+        remaining: Math.max(0,+r.remaining||0),
+        chifa: Math.max(0,parseInt(r.chifa)||0),
+        militaire: Math.max(0,parseInt(r.militaire)||0),
+        date: String(r.date||''),
+        category: String(r.category||'أخرى'),
+        notes: String(r.notes||''),
+        createdAt: r.createdAt || new Date().toISOString()
+      })).filter(r => /^\d{4}-\d{2}-\d{2}$/.test(r.date));
+
+      if (!confirm(`سيتم استبدال البيانات الحالية بـ ${clean.length} سجل. هل تريد المتابعة؟`)) return;
+
+      records = clean;
+      saveRecords();
+      resetForm();
+      $('backupModal').classList.add('hidden');
+      showToast('تم استرجاع النسخة الاحتياطية بنجاح.');
+    } catch {
+      showToast('ملف النسخة الاحتياطية غير صالح.','error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function openPasswordModal() {
+  $('changePasswordModal').classList.remove('hidden');
+  $('currentPassInput').value='';
+  $('newPassInput').value='';
+  $('modalAlert').className='hidden';
+}
+
+function closePasswordModal() {
+  $('changePasswordModal').classList.add('hidden');
+}
+
+function openBackupModal() {
+  $('backupModal').classList.remove('hidden');
+}
+
+function logout() {
+  sessionStorage.removeItem('isLoggedIn');
+  showLogin();
+  $('passwordInput').focus();
+}
+
+$('loginForm').addEventListener('submit', e => {
+  e.preventDefault();
+  if ($('passwordInput').value === getPassword()) {
+    sessionStorage.setItem('isLoggedIn','true');
+    $('loginError').classList.add('hidden');
+    $('passwordInput').value='';
+    showApp();
+  } else {
+    $('loginError').classList.remove('hidden');
+  }
+});
+
+$('toggleLoginPassword').addEventListener('click', () => {
+  const input = $('passwordInput');
+  const icon = $('eyeIcon');
+  input.type = input.type === 'password' ? 'text' : 'password';
+  icon.classList.toggle('fa-eye');
+  icon.classList.toggle('fa-eye-slash');
+});
+
+$('incomeForm').addEventListener('submit', handleIncomeSubmit);
+$('cancelEditBtn').addEventListener('click', resetForm);
+
+['incomeAmount','milkIncome','remainingExpenses'].forEach(id =>
+  $(id).addEventListener('input', updateLiveNet)
+);
+
+$('searchInput').addEventListener('input', filterRecords);
+$('filterDate').addEventListener('change', filterRecords);
+$('filterCategory').addEventListener('change', filterRecords);
+
+$('resetFiltersBtn').addEventListener('click', () => {
+  $('searchInput').value='';
+  $('filterDate').value='';
+  $('filterCategory').value='';
+  filterRecords();
+});
+
+$('incomeTableBody').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  const id = btn.dataset.id;
+  if (btn.dataset.action === 'edit') editRecord(id);
+  if (btn.dataset.action === 'delete') deleteRecord(id);
+});
+
+$('logoutBtn').addEventListener('click', logout);
+$('changePasswordBtn').addEventListener('click', openPasswordModal);
+$('closePasswordModal').addEventListener('click', closePasswordModal);
+$('cancelPasswordModal').addEventListener('click', closePasswordModal);
+
+$('passwordForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const current = $('currentPassInput').value;
+  const next = $('newPassInput').value;
+  const alert = $('modalAlert');
+
+  if (current !== getPassword()) {
+    alert.className='text-xs p-3 rounded-lg bg-red-50 text-red-600 border border-red-100';
+    alert.textContent='كلمة السر الحالية غير صحيحة.';
+    return;
+  }
+  if (next.trim().length < 4) {
+    alert.className='text-xs p-3 rounded-lg bg-amber-50 text-amber-700 border border-amber-100';
+    alert.textContent='كلمة السر يجب أن تكون 4 رموز على الأقل.';
+    return;
+  }
+
+  localStorage.setItem('app_password',next);
+  alert.className='text-xs p-3 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100';
+  alert.textContent='تم تغيير كلمة السر بنجاح.';
+  setTimeout(closePasswordModal,900);
+});
+
+$('backupBtn').addEventListener('click',openBackupModal);
+$('closeBackupModal').addEventListener('click',()=>$('backupModal').classList.add('hidden'));
+$('backupExportBtn').addEventListener('click',exportJSON);
+$('backupImportInput').addEventListener('change',e=>importBackup(e.target.files[0]));
+$('exportJsonBtn').addEventListener('click',exportJSON);
+$('exportCsvBtn').addEventListener('click',exportCSV);
+
+window.addEventListener('load', () => {
+  loadRecords();
+  $('incomeDate').value=localDateString();
+  if (sessionStorage.getItem('isLoggedIn') === 'true') showApp();
+  else showLogin();
+});
+</script>
+</body>
+</html>
