@@ -26,7 +26,13 @@ tailwind.config = {
 <style>
 body{font-family:'Cairo',sans-serif;background:#f8fafc}
 *{box-sizing:border-box}
-.table-wrap{overflow-x:auto}
+/* تحسين شريط التمرير للجدول */
+.table-wrap{overflow-x:auto; scrollbar-width: thin; scrollbar-color: #cbd5e1 #f1f5f9;}
+.table-wrap::-webkit-scrollbar { height: 8px; }
+.table-wrap::-webkit-scrollbar-track { background: #f1f5f9; }
+.table-wrap::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.table-wrap::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
 .toast{animation:slideIn .25s ease-out}
 @keyframes slideIn{from{transform:translateY(15px);opacity:0}to{transform:translateY(0);opacity:1}}
 @media print{
@@ -78,14 +84,14 @@ body{font-family:'Cairo',sans-serif;background:#f8fafc}
 <!-- APP -->
 <div id="appScreen" class="hidden min-h-screen flex-col">
 <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="max-w-[98%] mx-auto px-2 sm:px-4">
     <div class="flex items-center justify-between h-16">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center text-white">
           <i class="fa-solid fa-chart-line"></i>
         </div>
         <div>
-          <h2 class="font-bold text-lg leading-tight">دفتر المداخيل</h2>
+          <h2 class="font-bold text-lg leading-tight">دفتر المداخيل 2026</h2>
           <span class="text-xs text-slate-500">نظام إدارة التسجيلات اليومية</span>
         </div>
       </div>
@@ -105,10 +111,10 @@ body{font-family:'Cairo',sans-serif;background:#f8fafc}
   </div>
 </header>
 
-<main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+<main class="flex-grow max-w-[98%] w-full mx-auto px-2 sm:px-4 py-6 space-y-6">
 
 <!-- STATS -->
-<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
   <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
     <p class="text-xs font-semibold text-slate-400">مداخيل اليوم</p>
     <h3 id="todayTotal" class="text-2xl font-extrabold mt-2">0.00 دج</h3>
@@ -122,7 +128,7 @@ body{font-family:'Cairo',sans-serif;background:#f8fafc}
   <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
     <p class="text-xs font-semibold text-slate-400">الصافي الكلي</p>
     <h3 id="netTotal" class="text-2xl font-extrabold text-brand-600 mt-2">0.00 دج</h3>
-    <p class="text-xs text-slate-500 mt-1">بعد طرح صرف المتبقي</p>
+    <p class="text-xs text-slate-500 mt-1">عمل + صرف + حليب</p>
   </div>
   <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
     <p class="text-xs font-semibold text-slate-400">إجمالي العمليات</p>
@@ -131,11 +137,11 @@ body{font-family:'Cairo',sans-serif;background:#f8fafc}
   </div>
 </section>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
 <!-- FORM -->
-<section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 h-fit print-card">
-  <h3 id="formTitle" class="text-lg font-bold mb-5 flex items-center gap-2">
+<section class="lg:col-span-3 bg-white p-5 rounded-2xl shadow-sm border border-slate-100 h-fit print-card">
+  <h3 id="formTitle" class="text-lg font-bold mb-4 flex items-center gap-2">
     <i class="fa-solid fa-plus-circle text-brand-600"></i>
     تسجيل مدخول جديد
   </h3>
@@ -144,54 +150,54 @@ body{font-family:'Cairo',sans-serif;background:#f8fafc}
     <input type="hidden" id="editingId">
 
     <div>
-      <label class="block text-sm font-semibold mb-1">المبلغ الأساسي</label>
+      <label class="block text-sm font-semibold mb-1">عمل</label>
       <input type="number" step="0.01" min="0" id="incomeAmount" required placeholder="0.00"
-        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
-    </div>
-
-    <div>
-      <label class="block text-sm font-semibold mb-1">مداخيل الحليب</label>
-      <input type="number" step="0.01" min="0" id="milkIncome" placeholder="0.00"
-        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
+        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
     </div>
 
     <div>
       <label class="block text-sm font-semibold mb-1">صرف المتبقي</label>
       <input type="number" step="0.01" min="0" id="remainingExpenses" placeholder="0.00"
-        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
+        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold mb-1">مداخيل الحليب</label>
+      <input type="number" step="0.01" min="0" id="milkIncome" placeholder="0.00"
+        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
     </div>
 
     <div class="p-3 rounded-xl bg-brand-50 border border-brand-100">
       <div class="flex justify-between text-sm">
-        <span class="font-semibold">الصافي لهذه العملية</span>
-        <strong id="liveNet">0.00 دج</strong>
+        <span class="font-semibold">المبلغ الإجمالي الكلي</span>
+        <strong id="liveNet" class="text-brand-700">0.00 دج</strong>
       </div>
-      <p class="text-[11px] text-slate-500 mt-1">المبلغ الأساسي + الحليب − صرف المتبقي</p>
+      <p class="text-[11px] text-slate-500 mt-1">عمل + صرف + الحليب</p>
     </div>
 
-    <div class="grid grid-cols-2 gap-3">
+    <div class="grid grid-cols-2 gap-2">
       <div>
-        <label class="block text-sm font-semibold mb-1">وصفات الشفاء</label>
+        <label class="block text-xs font-semibold mb-1">وصفات الشفاء</label>
         <input type="number" min="0" step="1" id="chifaCount" placeholder="0"
-          class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
+          class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none text-sm">
       </div>
       <div>
-        <label class="block text-sm font-semibold mb-1">وصفات العسكرية</label>
+        <label class="block text-xs font-semibold mb-1">وصفات العسكرية</label>
         <input type="number" min="0" step="1" id="militaireCount" placeholder="0"
-          class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
+          class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none text-sm">
       </div>
     </div>
 
     <div>
       <label class="block text-sm font-semibold mb-1">التاريخ</label>
       <input type="date" id="incomeDate" required
-        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
+        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
     </div>
 
     <div>
       <label class="block text-sm font-semibold mb-1">الفئة / المصدر</label>
       <select id="incomeCategory"
-        class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-brand-500 outline-none">
         <option value="مبيعات">مبيعات</option>
         <option value="خدمات">تقديم خدمات</option>
         <option value="أرباح">أرباح ومستحقات</option>
@@ -203,85 +209,88 @@ body{font-family:'Cairo',sans-serif;background:#f8fafc}
     <div>
       <label class="block text-sm font-semibold mb-1">ملاحظات / وصف</label>
       <textarea id="incomeNotes" rows="2" placeholder="أضف تفاصيل إضافية..."
-        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none resize-none"></textarea>
+        class="w-full px-4 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none resize-none text-sm"></textarea>
     </div>
 
-    <div class="grid grid-cols-2 gap-2">
+    <div class="grid grid-cols-2 gap-2 pt-2">
       <button type="submit" id="saveIncomeBtn"
-        class="py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl flex items-center justify-center gap-2">
+        class="py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 text-sm shadow">
         <i class="fa-solid fa-check"></i> حفظ المدخول
       </button>
       <button type="button" id="cancelEditBtn"
-        class="hidden py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl">
+        class="hidden py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm">
         إلغاء التعديل
       </button>
     </div>
   </form>
 </section>
 
-<!-- TABLE -->
-<section class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 print-card">
-  <div class="flex flex-col sm:flex-row justify-between gap-4 mb-6">
-    <h3 class="text-lg font-bold flex items-center gap-2">
-      <i class="fa-solid fa-list-check text-brand-600"></i> سجل المداخيل
-    </h3>
-    <div class="flex flex-wrap gap-2 no-print">
-      <button id="exportJsonBtn" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-semibold">
-        <i class="fa-solid fa-download"></i> JSON
-      </button>
-      <button id="exportCsvBtn" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-semibold">
-        <i class="fa-solid fa-file-csv"></i> CSV
-      </button>
-      <button onclick="window.print()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-semibold">
-        <i class="fa-solid fa-print"></i> طباعة
-      </button>
+<!-- TABLE (WIDE VIEW) -->
+<section class="lg:col-span-9 bg-white p-5 rounded-2xl shadow-sm border border-slate-100 print-card flex flex-col justify-between">
+  <div>
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
+      <h3 class="text-lg font-bold flex items-center gap-2">
+        <i class="fa-solid fa-list-check text-brand-600"></i> سجل المداخيل الموسّع
+      </h3>
+      <div class="flex flex-wrap gap-2 no-print">
+        <button id="exportJsonBtn" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-semibold">
+          <i class="fa-solid fa-download"></i> JSON
+        </button>
+        <button id="exportCsvBtn" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-semibold">
+          <i class="fa-solid fa-file-csv"></i> CSV
+        </button>
+        <button onclick="window.print()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-semibold">
+          <i class="fa-solid fa-print"></i> طباعة
+        </button>
+      </div>
     </div>
-  </div>
 
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 no-print">
-    <input type="text" id="searchInput" placeholder="بحث في الملاحظات، الفئة، التاريخ..."
-      class="px-4 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-brand-500">
-    <input type="date" id="filterDate"
-      class="px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-brand-500">
-    <select id="filterCategory"
-      class="px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-brand-500">
-      <option value="">كل الفئات</option>
-      <option value="مبيعات">مبيعات</option>
-      <option value="خدمات">تقديم خدمات</option>
-      <option value="أرباح">أرباح ومستحقات</option>
-      <option value="تحويلات">تحويلات واردة</option>
-      <option value="أخرى">مصدر آخر</option>
-    </select>
-  </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 no-print">
+      <input type="text" id="searchInput" placeholder="بحث في الملاحظات، الفئة، التاريخ..."
+        class="px-4 py-2 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-brand-500">
+      <input type="date" id="filterDate"
+        class="px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-brand-500">
+      <select id="filterCategory"
+        class="px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-brand-500">
+        <option value="">كل الفئات</option>
+        <option value="مبيعات">مبيعات</option>
+        <option value="خدمات">تقديم خدمات</option>
+        <option value="أرباح">أرباح ومستحقات</option>
+        <option value="تحويلات">تحويلات واردة</option>
+        <option value="أخرى">مصدر آخر</option>
+      </select>
+    </div>
 
-  <div class="flex justify-between items-center mb-3 no-print">
-    <span id="filteredInfo" class="text-xs text-slate-500"></span>
-    <button id="resetFiltersBtn" class="text-xs text-brand-700 font-semibold hover:underline">إعادة ضبط</button>
-  </div>
+    <div class="flex justify-between items-center mb-3 no-print">
+      <span id="filteredInfo" class="text-xs text-slate-500 font-medium"></span>
+      <button id="resetFiltersBtn" class="text-xs text-brand-700 font-semibold hover:underline">إعادة ضبط الفلاتر</button>
+    </div>
 
-  <div class="table-wrap rounded-xl border border-slate-100">
-    <table class="w-full text-right text-sm min-w-[1100px]">
-      <thead class="bg-slate-50 text-slate-600 font-semibold border-b">
-        <tr>
-          <th class="p-3">التاريخ</th>
-          <th class="p-3">الفئة</th>
-          <th class="p-3">المبلغ</th>
-          <th class="p-3">الحليب</th>
-          <th class="p-3">المصاريف</th>
-          <th class="p-3">الصافي</th>
-          <th class="p-3">شفاء</th>
-          <th class="p-3">عسكرية</th>
-          <th class="p-3">الملاحظات</th>
-          <th class="p-3 text-center">إجراء</th>
-        </tr>
-      </thead>
-      <tbody id="incomeTableBody" class="divide-y divide-slate-100"></tbody>
-    </table>
-  </div>
+    <!-- WIDE TABLE CONTAINER -->
+    <div class="table-wrap rounded-xl border border-slate-200">
+      <table class="w-full text-right text-sm min-w-[1100px]">
+        <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+          <tr>
+            <th class="p-3.5 whitespace-nowrap w-28">التاريخ</th>
+            <th class="p-3.5 whitespace-nowrap w-24">الفئة</th>
+            <th class="p-3.5 whitespace-nowrap text-slate-800">عمل</th>
+            <th class="p-3.5 whitespace-nowrap text-amber-700">صرف</th>
+            <th class="p-3.5 whitespace-nowrap text-blue-700">الحليب</th>
+            <th class="p-3.5 whitespace-nowrap text-emerald-800 bg-emerald-100/60">الصافي الكلي</th>
+            <th class="p-3.5 whitespace-nowrap text-center w-16">شفاء</th>
+            <th class="p-3.5 whitespace-nowrap text-center w-16">عسكرية</th>
+            <th class="p-3.5">الملاحظات</th>
+            <th class="p-3.5 text-center w-24 no-print">إجراء</th>
+          </tr>
+        </thead>
+        <tbody id="incomeTableBody" class="divide-y divide-slate-100"></tbody>
+      </table>
+    </div>
 
-  <div id="noDataMessage" class="hidden text-center py-12 text-slate-400">
-    <i class="fa-solid fa-inbox text-4xl mb-3 block"></i>
-    <p>لا توجد مدخلات مطابقة.</p>
+    <div id="noDataMessage" class="hidden text-center py-12 text-slate-400">
+      <i class="fa-solid fa-inbox text-4xl mb-3 block"></i>
+      <p>لا توجد مدخلات مطابقة.</p>
+    </div>
   </div>
 </section>
 </div>
@@ -339,6 +348,136 @@ body{font-family:'Cairo',sans-serif;background:#f8fafc}
 'use strict';
 
 const DEFAULT_PASSWORD = '1234';
+
+const INITIAL_DATA = [
+  // ماي 2026
+  { id: "m01", date: "2026-05-01", amount: 8000, milk: 2380, remaining: 2550, chifa: 0, militaire: 0, category: "مبيعات", notes: "" },
+  { id: "m03", date: "2026-05-03", amount: 15000, milk: 840, remaining: 3265, chifa: 0, militaire: 9, category: "مبيعات", notes: "" },
+  { id: "m04", date: "2026-05-04", amount: 9000, milk: 1270, remaining: 3005, chifa: 0, militaire: 6, category: "مبيعات", notes: "" },
+  { id: "m05", date: "2026-05-05", amount: 8000, milk: 0, remaining: 3660, chifa: 0, militaire: 2, category: "مبيعات", notes: "" },
+  { id: "m06", date: "2026-05-06", amount: 17000, milk: 2610, remaining: 2795, chifa: 2, militaire: 2, category: "مبيعات", notes: "" },
+  { id: "m07", date: "2026-05-07", amount: 8000, milk: 2460, remaining: 2715, chifa: 4, militaire: 5, category: "مبيعات", notes: "" },
+  { id: "m08", date: "2026-05-08", amount: 20000, milk: 2650, remaining: 3220, chifa: 2, militaire: 6, category: "مبيعات", notes: "" },
+  { id: "m10", date: "2026-05-10", amount: 11000, milk: 850, remaining: 3380, chifa: 0, militaire: 1, category: "مبيعات", notes: "" },
+  { id: "m11", date: "2026-05-11", amount: 5000, milk: 840, remaining: 2465, chifa: 0, militaire: 2, category: "مبيعات", notes: "Rm 2070.00" },
+  { id: "m12", date: "2026-05-12", amount: 15000, milk: 690, remaining: 2385, chifa: 0, militaire: 1, category: "مبيعات", notes: "" },
+  { id: "m13", date: "2026-05-13", amount: 8000, milk: 1000, remaining: 2800, chifa: 0, militaire: 4, category: "مبيعات", notes: "" },
+  { id: "m14", date: "2026-05-14", amount: 8000, milk: 0, remaining: 2515, chifa: 2, militaire: 12, category: "مبيعات", notes: "Rm 4000.00" },
+  { id: "m15", date: "2026-05-15", amount: 11000, milk: 0, remaining: 2205, chifa: 0, militaire: 5, category: "مبيعات", notes: "" },
+  { id: "m17", date: "2026-05-17", amount: 11000, milk: 1000, remaining: 3480, chifa: 3, militaire: 3, category: "مبيعات", notes: "" },
+  { id: "m18", date: "2026-05-18", amount: 19000, milk: 0, remaining: 2820, chifa: 2, militaire: 2, category: "مبيعات", notes: "" },
+  { id: "m19", date: "2026-05-19", amount: 10000, milk: 0, remaining: 3510, chifa: 3, militaire: 8, category: "مبيعات", notes: "" },
+  { id: "m20", date: "2026-05-20", amount: 10000, milk: 1740, remaining: 4100, chifa: 0, militaire: 4, category: "مبيعات", notes: "" },
+  { id: "m21", date: "2026-05-21", amount: 10000, milk: 1820, remaining: 3190, chifa: 2, militaire: 5, category: "مبيعات", notes: "" },
+  { id: "m22", date: "2026-05-22", amount: 16000, milk: 1000, remaining: 3970, chifa: 5, militaire: 5, category: "مبيعات", notes: "" },
+  { id: "m24", date: "2026-05-24", amount: 14000, milk: 850, remaining: 3900, chifa: 2, militaire: 5, category: "مبيعات", notes: "" },
+  { id: "m25", date: "2026-05-25", amount: 19000, milk: 1250, remaining: 3150, chifa: 0, militaire: 11, category: "مبيعات", notes: "" },
+  { id: "m26", date: "2026-05-26", amount: 16000, milk: 860, remaining: 3510, chifa: 3, militaire: 4, category: "مبيعات", notes: "" },
+  { id: "m27", date: "2026-05-27", amount: 20000, milk: 2720, remaining: 3520, chifa: 0, militaire: 9, category: "مبيعات", notes: "" },
+  { id: "m28", date: "2026-05-28", amount: 26000, milk: 7820, remaining: 3920, chifa: 3, militaire: 12, category: "مبيعات", notes: "" },
+  { id: "m29", date: "2026-05-29", amount: 26000, milk: 4770, remaining: 3245, chifa: 3, militaire: 14, category: "مبيعات", notes: "" },
+  { id: "m31", date: "2026-05-31", amount: 18000, milk: 840, remaining: 3250, chifa: 1, militaire: 4, category: "مبيعات", notes: "" },
+
+  // جوان 2026
+  { id: "j01", date: "2026-06-01", amount: 20000, milk: 1680, remaining: 3555, chifa: 5, militaire: 3, category: "مبيعات", notes: "" },
+  { id: "j02", date: "2026-06-02", amount: 19000, milk: 4770, remaining: 0, chifa: 2, militaire: 13, category: "مبيعات", notes: "" },
+  { id: "j03", date: "2026-06-03", amount: 17000, milk: 4500, remaining: 3770, chifa: 2, militaire: 11, category: "مبيعات", notes: "" },
+  { id: "j04", date: "2026-06-04", amount: 11000, milk: 7070, remaining: 3185, chifa: 1, militaire: 3, category: "مبيعات", notes: "" },
+  { id: "j05", date: "2026-06-05", amount: 22000, milk: 8810, remaining: 3275, chifa: 1, militaire: 5, category: "مبيعات", notes: "" },
+  { id: "j07", date: "2026-06-07", amount: 20000, milk: 3550, remaining: 3790, chifa: 1, militaire: 6, category: "مبيعات", notes: "Rm 1260.00" },
+  { id: "j08", date: "2026-06-08", amount: 15000, milk: 3070, remaining: 3240, chifa: 1, militaire: 6, category: "مبيعات", notes: "" },
+  { id: "j09", date: "2026-06-09", amount: 28000, milk: 2700, remaining: 4055, chifa: 1, militaire: 7, category: "مبيعات", notes: "" },
+  { id: "j10", date: "2026-06-10", amount: 16000, milk: 8730, remaining: 2340, chifa: 2, militaire: 5, category: "مبيعات", notes: "" },
+  { id: "j11", date: "2026-06-11", amount: 12000, milk: 3960, remaining: 2730, chifa: 3, militaire: 7, category: "مبيعات", notes: "" },
+  { id: "j12", date: "2026-06-12", amount: 10000, milk: 2090, remaining: 2435, chifa: 1, militaire: 11, category: "مبيعات", notes: "" },
+  { id: "j14", date: "2026-06-14", amount: 17000, milk: 8010, remaining: 3250, chifa: 3, militaire: 13, category: "مبيعات", notes: "" },
+  { id: "j15", date: "2026-06-15", amount: 19000, milk: 6000, remaining: 2845, chifa: 2, militaire: 6, category: "مبيعات", notes: "" },
+  { id: "j16", date: "2026-06-16", amount: 18000, milk: 3260, remaining: 2230, chifa: 2, militaire: 8, category: "مبيعات", notes: "" },
+  { id: "j17", date: "2026-06-17", amount: 12000, milk: 3350, remaining: 2680, chifa: 0, militaire: 7, category: "مبيعات", notes: "" },
+  { id: "j18", date: "2026-06-18", amount: 16000, milk: 1550, remaining: 2755, chifa: 0, militaire: 8, category: "مبيعات", notes: "" },
+  { id: "j19", date: "2026-06-19", amount: 14000, milk: 1530, remaining: 3225, chifa: 2, militaire: 4, category: "مبيعات", notes: "" },
+  { id: "j21", date: "2026-06-21", amount: 15000, milk: 4040, remaining: 3720, chifa: 1, militaire: 7, category: "مبيعات", notes: "" },
+  { id: "j22", date: "2026-06-22", amount: 15000, milk: 0, remaining: 4395, chifa: 2, militaire: 4, category: "مبيعات", notes: "" },
+  { id: "j23", date: "2026-06-23", amount: 21000, milk: 5540, remaining: 3020, chifa: 1, militaire: 3, category: "مبيعات", notes: "" },
+  { id: "j24", date: "2026-06-24", amount: 19000, milk: 13280, remaining: 3165, chifa: 1, militaire: 13, category: "مبيعات", notes: "" },
+  { id: "j25", date: "2026-06-25", amount: 2700, milk: 5180, remaining: 4260, chifa: 0, militaire: 8, category: "مبيعات", notes: "" },
+  { id: "j26", date: "2026-06-26", amount: 17000, milk: 2810, remaining: 2970, chifa: 3, militaire: 4, category: "مبيعات", notes: "" },
+  { id: "j28", date: "2026-06-28", amount: 15000, milk: 3000, remaining: 2875, chifa: 1, militaire: 7, category: "مبيعات", notes: "" },
+  { id: "j29", date: "2026-06-29", amount: 15000, milk: 6110, remaining: 3920, chifa: 4, militaire: 5, category: "مبيعات", notes: "" },
+  { id: "j30", date: "2026-06-30", amount: 10000, milk: 7200, remaining: 3200, chifa: 2, militaire: 6, category: "مبيعات", notes: "" },
+
+  // جويلية 2026
+  { id: "jl01", date: "2026-07-01", amount: 11000, milk: 750, remaining: 3070, chifa: 1, militaire: 2, category: "مبيعات", notes: "" },
+  { id: "jl02", date: "2026-07-02", amount: 1300, milk: 5850, remaining: 3725, chifa: 2, militaire: 4, category: "مبيعات", notes: "Rm 650.00" },
+  { id: "jl03", date: "2026-07-03", amount: 12000, milk: 0, remaining: 3320, chifa: 1, militaire: 7, category: "مبيعات", notes: "" },
+  { id: "jl05", date: "2026-07-05", amount: 15000, milk: 5230, remaining: 2725, chifa: 2, militaire: 3, category: "مبيعات", notes: "" },
+  { id: "jl06", date: "2026-07-06", amount: 21000, milk: 3300, remaining: 3200, chifa: 2, militaire: 7, category: "مبيعات", notes: "" },
+  { id: "jl07", date: "2026-07-07", amount: 13000, milk: 1700, remaining: 3720, chifa: 4, militaire: 12, category: "مبيعات", notes: "" },
+  { id: "jl08", date: "2026-07-08", amount: 8000, milk: 4130, remaining: 2325, chifa: 1, militaire: 4, category: "مبيعات", notes: "Rm 2100.00" },
+  { id: "jl09", date: "2026-07-09", amount: 21000, milk: 4970, remaining: 3145, chifa: 8, militaire: 4, category: "مبيعات", notes: "" },
+  { id: "jl10", date: "2026-07-10", amount: 15000, milk: 2820, remaining: 2900, chifa: 1, militaire: 4, category: "مبيعات", notes: "" },
+  { id: "jl12", date: "2026-07-12", amount: 11000, milk: 3290, remaining: 2210, chifa: 2, militaire: 4, category: "مبيعات", notes: "" },
+  { id: "jl13", date: "2026-07-13", amount: 16000, milk: 1940, remaining: 3400, chifa: 3, militaire: 8, category: "مبيعات", notes: "Rm 1165.00" },
+  { id: "jl14", date: "2026-07-14", amount: 14000, milk: 3240, remaining: 3185, chifa: 3, militaire: 7, category: "مبيعات", notes: "" },
+  { id: "jl15", date: "2026-07-15", amount: 15000, milk: 3520, remaining: 2760, chifa: 3, militaire: 5, category: "مبيعات", notes: "" },
+  { id: "jl16", date: "2026-07-16", amount: 18000, milk: 6250, remaining: 3455, chifa: 1, militaire: 1, category: "مبيعات", notes: "" },
+  { id: "jl17", date: "2026-07-17", amount: 12000, milk: 2020, remaining: 2660, chifa: 1, militaire: 9, category: "مبيعات", notes: "" },
+  { id: "jl19", date: "2026-07-19", amount: 18000, milk: 3000, remaining: 2880, chifa: 1, militaire: 5, category: "مبيعات", notes: "" },
+  { id: "jl20", date: "2026-07-20", amount: 16000, milk: 740, remaining: 3815, chifa: 1, militaire: 6, category: "مبيعات", notes: "" },
+  { id: "jl21", date: "2026-07-21", amount: 15000, milk: 3700, remaining: 3250, chifa: 2, militaire: 13, category: "مبيعات", notes: "" },
+  { id: "jl22", date: "2026-07-22", amount: 14000, milk: 850, remaining: 3530, chifa: 2, militaire: 8, category: "مبيعات", notes: "" },
+  { id: "jl23", date: "2026-07-23", amount: 26000, milk: 2670, remaining: 267.5, chifa: 3, militaire: 10, category: "مبيعات", notes: "" },
+  { id: "jl24", date: "2026-07-24", amount: 18000, milk: 0, remaining: 2830, chifa: 2, militaire: 10, category: "مبيعات", notes: "" },
+  { id: "jl26", date: "2026-07-26", amount: 23000, milk: 2000, remaining: 4010, chifa: 0, militaire: 7, category: "مبيعات", notes: "" },
+  { id: "jl27", date: "2026-07-27", amount: 26000, milk: 2400, remaining: 3950, chifa: 8, militaire: 3, category: "مبيعات", notes: "" },
+  { id: "jl28", date: "2026-07-28", amount: 27000, milk: 2000, remaining: 2890, chifa: 1, militaire: 4, category: "مبيعات", notes: "" },
+  { id: "jl29", date: "2026-07-29", amount: 15000, milk: 3770, remaining: 3145, chifa: 0, militaire: 9, category: "مبيعات", notes: "" },
+  { id: "jl30", date: "2026-07-30", amount: 18000, milk: 2020, remaining: 3155, chifa: 3, militaire: 10, category: "مبيعات", notes: "Rm 530.00" },
+  { id: "jl31", date: "2026-07-31", amount: 7000, milk: 4760, remaining: 3200, chifa: 0, militaire: 9, category: "مبيعات", notes: "" },
+
+  // أوت 2026
+  { id: "au02", date: "2026-08-02", amount: 14000, milk: 2050, remaining: 3000, chifa: 1, militaire: 11, category: "مبيعات", notes: "" },
+  { id: "au03", date: "2026-08-03", amount: 17000, milk: 4350, remaining: 3340, chifa: 1, militaire: 7, category: "مبيعات", notes: "" },
+  { id: "au04", date: "2026-08-04", amount: 12000, milk: 0, remaining: 3505, chifa: 0, militaire: 12, category: "مبيعات", notes: "" },
+  { id: "au05", date: "2026-08-05", amount: 16000, milk: 1100, remaining: 4195, chifa: 2, militaire: 5, category: "مبيعات", notes: "" },
+  { id: "au06", date: "2026-08-06", amount: 21000, milk: 3540, remaining: 3595, chifa: 3, militaire: 9, category: "مبيعات", notes: "" },
+  { id: "au07", date: "2026-08-07", amount: 13000, milk: 2150, remaining: 3398, chifa: 2, militaire: 9, category: "مبيعات", notes: "" },
+  { id: "au09", date: "2026-08-09", amount: 14000, milk: 1940, remaining: 2760, chifa: 3, militaire: 7, category: "مبيعات", notes: "" },
+  { id: "au10", date: "2026-08-10", amount: 15000, milk: 3000, remaining: 0, chifa: 1, militaire: 9, category: "مبيعات", notes: "" },
+  { id: "au11", date: "2026-08-11", amount: 21000, milk: 4000, remaining: 4155, chifa: 3, militaire: 7, category: "مبيعات", notes: "" },
+  { id: "au12", date: "2026-08-12", amount: 12000, milk: 850, remaining: 3035, chifa: 2, militaire: 2, category: "مبيعات", notes: "" },
+  { id: "au13", date: "2026-08-13", amount: 12000, milk: 1780, remaining: 3075, chifa: 3, militaire: 9, category: "مبيعات", notes: "" },
+  { id: "au14", date: "2026-08-14", amount: 15000, milk: 2700, remaining: 3055, chifa: 0, militaire: 10, category: "مبيعات", notes: "" },
+  { id: "au16", date: "2026-08-16", amount: 23000, milk: 2550, remaining: 4180, chifa: 1, militaire: 6, category: "مبيعات", notes: "" },
+  { id: "au17", date: "2026-08-17", amount: 11000, milk: 1700, remaining: 4190, chifa: 3, militaire: 8, category: "مبيعات", notes: "" },
+  { id: "au18", date: "2026-08-18", amount: 21000, milk: 1910, remaining: 3790, chifa: 2, militaire: 11, category: "مبيعات", notes: "" },
+  { id: "au19", date: "2026-08-19", amount: 15000, milk: 2550, remaining: 2515, chifa: 0, militaire: 10, category: "مبيعات", notes: "" },
+  { id: "au20", date: "2026-08-20", amount: 19000, milk: 4390, remaining: 2945, chifa: 3, militaire: 5, category: "مبيعات", notes: "" },
+  { id: "au21", date: "2026-08-21", amount: 14000, milk: 1700, remaining: 4300, chifa: 3, militaire: 9, category: "مبيعات", notes: "" },
+  { id: "au23", date: "2026-08-23", amount: 12000, milk: 0, remaining: 3440, chifa: 3, militaire: 4, category: "مبيعات", notes: "" },
+  { id: "au24", date: "2026-08-24", amount: 18000, milk: 0, remaining: 3755, chifa: 3, militaire: 6, category: "مبيعات", notes: "" },
+  { id: "au25", date: "2026-08-25", amount: 9000, milk: 0, remaining: 3560, chifa: 1, militaire: 10, category: "مبيعات", notes: "" },
+  { id: "au26", date: "2026-08-26", amount: 14000, milk: 0, remaining: 2560, chifa: 2, militaire: 5, category: "مبيعات", notes: "" },
+  { id: "au27", date: "2026-08-27", amount: 16000, milk: 0, remaining: 4150, chifa: 1, militaire: 10, category: "مبيعات", notes: "" },
+  { id: "au28", date: "2026-08-28", amount: 7000, milk: 2130, remaining: 2480, chifa: 1, militaire: 2, category: "مبيعات", notes: "" },
+  { id: "au30", date: "2026-08-30", amount: 13000, milk: 750, remaining: 2865, chifa: 0, militaire: 5, category: "مبيعات", notes: "" },
+  { id: "au31", date: "2026-08-31", amount: 10000, milk: 960, remaining: 3520, chifa: 2, militaire: 7, category: "مبيعات", notes: "" },
+
+  // سبتمبر 2026
+  { id: "s01", date: "2026-09-01", amount: 16000, milk: 5240, remaining: 3250, chifa: 4, militaire: 4, category: "مبيعات", notes: "" },
+  { id: "s02", date: "2026-09-02", amount: 16000, milk: 3860, remaining: 4315, chifa: 4, militaire: 5, category: "مبيعات", notes: "" },
+  { id: "s03", date: "2026-09-03", amount: 12000, milk: 850, remaining: 3070, chifa: 4, militaire: 5, category: "مبيعات", notes: "" },
+  { id: "s04", date: "2026-09-04", amount: 16000, milk: 850, remaining: 3340, chifa: 0, militaire: 6, category: "مبيعات", notes: "" },
+  { id: "s06", date: "2026-09-06", amount: 18000, milk: 0, remaining: 3170, chifa: 2, militaire: 4, category: "مبيعات", notes: "" },
+  { id: "s07", date: "2026-09-07", amount: 13000, milk: 880, remaining: 3045, chifa: 2, militaire: 12, category: "مبيعات", notes: "" },
+  { id: "s08", date: "2026-09-08", amount: 10000, milk: 0, remaining: 3595, chifa: 2, militaire: 3, category: "مبيعات", notes: "" },
+  { id: "s09", date: "2026-09-09", amount: 9000, milk: 0, remaining: 2590, chifa: 1, militaire: 6, category: "مبيعات", notes: "" },
+  { id: "s10", date: "2026-09-10", amount: 12000, milk: 0, remaining: 3950, chifa: 2, militaire: 8, category: "مبيعات", notes: "" },
+  { id: "s11", date: "2026-09-11", amount: 11000, milk: 0, remaining: 2845, chifa: 1, militaire: 4, category: "مبيعات", notes: "" },
+  { id: "s13", date: "2026-09-13", amount: 12000, milk: 2014, remaining: 3055, chifa: 1, militaire: 2, category: "مبيعات", notes: "" },
+  { id: "s14", date: "2026-09-14", amount: 7000, milk: 0, remaining: 3385, chifa: 0, militaire: 6, category: "مبيعات", notes: "" }
+];
+
 let records = [];
 let editingId = null;
 
@@ -393,11 +532,16 @@ function showApp() {
 function loadRecords() {
   try {
     const raw = localStorage.getItem('income_records');
-    const parsed = raw ? JSON.parse(raw) : [];
-    records = Array.isArray(parsed) ? parsed : [];
+    if (!raw) {
+      records = [...INITIAL_DATA];
+      saveRecords();
+    } else {
+      const parsed = JSON.parse(raw);
+      records = Array.isArray(parsed) && parsed.length > 0 ? parsed : [...INITIAL_DATA];
+    }
   } catch {
-    records = [];
-    showToast('تعذر قراءة البيانات القديمة.', 'error');
+    records = [...INITIAL_DATA];
+    showToast('تعذر قراءة البيانات، تم تحميل البيانات الافتراضية.', 'warning');
   }
 }
 
@@ -442,7 +586,7 @@ function editRecord(id) {
 function deleteRecord(id) {
   const r = records.find(x => x.id === id);
   if (!r) return;
-  if (!confirm(`هل أنت متأكد من حذف مدخول ${money((+r.amount||0)+(+r.milk||0))} بتاريخ ${r.date}؟`)) return;
+  if (!confirm(`هل أنت متأكد من حذف هذا السجل بتاريخ ${r.date}؟`)) return;
   records = records.filter(x => x.id !== id);
   saveRecords();
   showToast('تم حذف السجل.');
@@ -497,8 +641,8 @@ function calculateTotals() {
     const amount = +r.amount || 0;
     const milk = +r.milk || 0;
     const expenses = +r.remaining || 0;
-    const income = amount + milk;
-    const net = income - expenses;
+    
+    const net = amount + expenses + milk; 
 
     grandIncome += amount;
     grandMilk += milk;
@@ -536,13 +680,16 @@ function filterRecords() {
            (!category || r.category === category);
   });
 
+  // فرز السجلات المفلترة من الأحدث إلى الأقدم حسب التاريخ
+  filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
   renderTable(filtered);
 }
 
 function renderTable(list) {
   const tbody = $('incomeTableBody');
   tbody.innerHTML = '';
-  $('filteredInfo').textContent = `${list.length} من ${records.length} سجل`;
+  $('filteredInfo').textContent = `${list.length} من أصل ${records.length} سجلات`;
 
   if (!list.length) {
     $('noDataMessage').classList.remove('hidden');
@@ -550,36 +697,36 @@ function renderTable(list) {
   }
   $('noDataMessage').classList.add('hidden');
 
-  for (const r of list) {
+  list.forEach((r, idx) => {
     const amount = +r.amount || 0;
     const milk = +r.milk || 0;
     const expenses = +r.remaining || 0;
-    const net = amount + milk - expenses;
+    const net = amount + expenses + milk;
 
     const tr = document.createElement('tr');
-    tr.className = 'hover:bg-slate-50 transition-colors';
+    tr.className = `${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/70'} hover:bg-slate-100/80 transition-colors`;
 
     tr.innerHTML = `
-      <td class="p-3 whitespace-nowrap font-medium">${escapeHtml(r.date)}</td>
-      <td class="p-3 whitespace-nowrap"><span class="px-2 py-1 bg-slate-100 rounded-lg text-xs">${escapeHtml(r.category)}</span></td>
-      <td class="p-3 whitespace-nowrap font-bold text-brand-700">${money(amount)}</td>
-      <td class="p-3 whitespace-nowrap font-bold text-blue-600">${money(milk)}</td>
-      <td class="p-3 whitespace-nowrap font-bold text-amber-600">${money(expenses)}</td>
-      <td class="p-3 whitespace-nowrap font-bold ${net >= 0 ? 'text-emerald-700':'text-red-600'}">${money(net)}</td>
-      <td class="p-3 font-bold text-indigo-600">${r.chifa || 0}</td>
-      <td class="p-3 font-bold text-purple-600">${r.militaire || 0}</td>
-      <td class="p-3 text-slate-500 max-w-xs">${escapeHtml(r.notes || '-')}</td>
-      <td class="p-3 text-center whitespace-nowrap no-print">
-        <button data-action="edit" data-id="${escapeHtml(r.id)}" title="تعديل" class="text-blue-500 hover:bg-blue-50 p-2 rounded-lg">
+      <td class="p-3.5 whitespace-nowrap font-medium text-slate-700">${escapeHtml(r.date)}</td>
+      <td class="p-3.5 whitespace-nowrap"><span class="px-2.5 py-1 bg-slate-200/60 rounded-lg text-xs font-semibold text-slate-600">${escapeHtml(r.category)}</span></td>
+      <td class="p-3.5 whitespace-nowrap font-bold text-slate-800">${money(amount)}</td>
+      <td class="p-3.5 whitespace-nowrap font-bold text-amber-600">${money(expenses)}</td>
+      <td class="p-3.5 whitespace-nowrap font-bold text-blue-600">${money(milk)}</td>
+      <td class="p-3.5 whitespace-nowrap font-bold text-emerald-700 font-black bg-emerald-50/70">${money(net)}</td>
+      <td class="p-3.5 font-bold text-indigo-600 text-center">${r.chifa || 0}</td>
+      <td class="p-3.5 font-bold text-purple-600 text-center">${r.militaire || 0}</td>
+      <td class="p-3.5 text-slate-600">${escapeHtml(r.notes || '-')}</td>
+      <td class="p-3.5 text-center whitespace-nowrap no-print">
+        <button data-action="edit" data-id="${escapeHtml(r.id)}" title="تعديل" class="text-blue-600 hover:bg-blue-100/70 p-2 rounded-lg transition-colors">
           <i class="fa-solid fa-pen"></i>
         </button>
-        <button data-action="delete" data-id="${escapeHtml(r.id)}" title="حذف" class="text-red-500 hover:bg-red-50 p-2 rounded-lg">
+        <button data-action="delete" data-id="${escapeHtml(r.id)}" title="حذف" class="text-red-500 hover:bg-red-100/70 p-2 rounded-lg transition-colors">
           <i class="fa-solid fa-trash"></i>
         </button>
       </td>
     `;
     tbody.appendChild(tr);
-  }
+  });
 }
 
 function renderDashboard() {
@@ -591,17 +738,20 @@ function updateLiveNet() {
   const amount = +$('incomeAmount').value || 0;
   const milk = +$('milkIncome').value || 0;
   const expenses = +$('remainingExpenses').value || 0;
-  $('liveNet').textContent = money(amount + milk - expenses);
+  $('liveNet').textContent = money(amount + expenses + milk);
 }
 
 function exportJSON() {
   if (!records.length) return showToast('لا توجد بيانات لتصديرها.','warning');
 
+  // تصدير البيانات مرتبة من الأحدث للأقدم
+  const sortedRecords = [...records].sort((a, b) => new Date(b.date) - new Date(a.date));
+
   const payload = {
     app: 'دفتر المداخيل',
-    version: 2,
+    version: 4,
     exportedAt: new Date().toISOString(),
-    records
+    records: sortedRecords
   };
 
   downloadFile(
@@ -615,12 +765,19 @@ function exportJSON() {
 function exportCSV() {
   if (!records.length) return showToast('لا توجد بيانات لتصديرها.','warning');
 
-  const headers = ['التاريخ','الفئة','المبلغ الأساسي','الحليب','صرف المتبقي','الصافي','وصفات الشفاء','وصفات العسكرية','الملاحظات'];
-  const rows = records.map(r => [
-    r.date,r.category,r.amount||0,r.milk||0,r.remaining||0,
-    (+r.amount||0)+(+r.milk||0)-(+r.remaining||0),
-    r.chifa||0,r.militaire||0,r.notes||''
-  ]);
+  const headers = ['التاريخ','الفئة','عمل','صرف','الحليب','الصافي الكلي','وصفات الشفاء','وصفات العسكرية','الملاحظات'];
+  const sortedRecords = [...records].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const rows = sortedRecords.map(r => {
+    const amount = +r.amount || 0;
+    const expenses = +r.remaining || 0;
+    const milk = +r.milk || 0;
+    const net = amount + expenses + milk;
+    return [
+      r.date, r.category, amount, expenses, milk, net,
+      r.chifa||0, r.militaire||0, r.notes||''
+    ];
+  });
 
   const csv = '\uFEFF' + [headers,...rows].map(row =>
     row.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')
